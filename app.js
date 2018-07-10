@@ -13,7 +13,7 @@ const UIController = (function (){
 
 
 
-//global App control
+//global App controller
 const controller =  (function(budgetController,UIController){
 
     document.querySelector('.add__btn').addEventListener('click',function(){
