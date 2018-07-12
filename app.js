@@ -79,7 +79,7 @@ const UIController = (function (){
                 return {
                     type : document.querySelector(DOMstring.inputType).value,
                     description : document.querySelector(DOMstring.inputDescription).value,
-                    value : document.querySelector(DOMstring.inputValue).value
+                    value : parseFloat(document.querySelector(DOMstring.inputValue).value)
                 };
             },
             //buat global/public methode
@@ -104,7 +104,20 @@ const UIController = (function (){
             //membuat object DOMstring menjadi Global
             getDOMstring:function(){
                 return DOMstring;
-            }
+            },
+
+            clearFields : function(){
+                let fields, fieldsArr;
+
+                fields = document.querySelectorAll(DOMstring.inputDescription +', '+ DOMstring.inputValue);
+
+                fieldsArr = Array.prototype.slice.call(fields);
+
+                fieldsArr.forEach(currentValue => {
+                    currentValue.value =  '';
+                });
+                fieldsArr[0].focus();
+            },
         }
 })();
 
@@ -125,7 +138,15 @@ const controller =  (function(budgetController,UIController){
             }
         })
     }
-    
+
+    let updateBudget = function (){
+
+        // 1.kalkulasi budget
+
+        //2.return budget
+
+        //3.display badget ke UI
+    }
     
 
 
@@ -133,13 +154,24 @@ const controller =  (function(budgetController,UIController){
         //1. ambil input data
         let input = UIController.getinput();
         console.log (input) 
+
+        if (input.description !== '' && !isNaN(input.value) && input.value>0){
+            
         //2.masukan item ke budget cnotroller
         let newItem = budgetController.addItem(input.type, input.description, input.value)
         //3.add item ke user intervace
         UIController.addListItem(newItem, input.type)
+
+        // clear input/field
+       
         //4. calculate budget
 
         //5. display budget
+
+        //6. Update dan kalkulasi budget
+        updateBudget()
+        }
+        UIController.clearFields()
         
     }
 
