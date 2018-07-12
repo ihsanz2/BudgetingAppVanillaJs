@@ -13,6 +13,14 @@ const budgetController = (function(){
         this.value =value;
     };
 
+    let calculateTotal = function (type){
+        let sum = 0;
+        data.allItems[type].forEach(function(cur){
+            sum += cur.value;
+        });
+        data.totals[type] = sum;
+    };
+
     let data = {
         allItems : {
             exp : [],
@@ -22,7 +30,9 @@ const budgetController = (function(){
         totals : {
             exp : 0,
             inc : 0,
-        }
+        },
+        budget : 0,
+        persentase:0,
     }
     return {
         addItem : function(type, des, val){
@@ -51,8 +61,36 @@ const budgetController = (function(){
             //kembalikan elemen baru
             return newItem
         },
+
+        calculateBudget : function (){
+
+            //kalikan total income
+            calculateTotal('exp');
+            calculateTotal('inc');
+            //kalikan budget
+            data.budget = data.totals.inc-data.totals.exp;
+            //persentase
+
+            if (data.totals.inc>0){
+                data.persentase =Math.round((data.totals.inc/data.totals.exp) * 100);
+            }else{
+                data.persentase = -1
+            }
+            
+
+        },
+
         testing : function () {
             console.log(data)
+        },
+
+        getBudget : function (){
+            return {
+                budget:data.budget,
+                totalInc: data.totals.inc,
+                totalExp: data.totals.exp,
+                persentase: data.persentase
+            }
         }
     }
     
@@ -142,10 +180,11 @@ const controller =  (function(budgetController,UIController){
     let updateBudget = function (){
 
         // 1.kalkulasi budget
-
+        budgetController.calculateBudget();
         //2.return budget
-
+        let budget = budgetController.getBudget()
         //3.display badget ke UI
+        console.log(budget);
     }
     
 
