@@ -1,40 +1,41 @@
 //Budget controller
 
 const budgetController = (function(){
-    let Expense = function (id, description, value) {
-        this.id = id;
-        this.description = description;
-        this.value =value;
-    };
+        let Expense = function (id, description, value) {
+            this.id = id;
+            this.description = description;
+            this.value =value;
+        };
 
-    let Income = function (id, description, value) {
-        this.id = id;
-        this.description = description;
-        this.value =value;
-    };
+        let Income = function (id, description, value) {
+            this.id = id;
+            this.description = description;
+            this.value =value;
+        };
 
-    let calculateTotal = function (type){
-        let sum = 0;
-        data.allItems[type].forEach(function(cur){
-            sum += cur.value;
-        });
-        data.totals[type] = sum;
-    };
+        let calculateTotal = function (type){
+            let sum = 0;
+            data.allItems[type].forEach(function(cur){
+                sum += cur.value;
+            });
+            data.totals[type] = sum;
+        };
 
-    let data = {
-        allItems : {
-            exp : [],
-            inc : [],
-        },
+        let data = {
+            allItems : {
+                exp : [],
+                inc : [],
+            },
 
-        totals : {
-            exp : 0,
-            inc : 0,
-        },
-        budget : 0,
-        persentase:0,
-    }
+            totals : {
+                exp : 0,
+                inc : 0,
+            },
+            budget : 0,
+            persentase:-1,
+        }
     return {
+        
         addItem : function(type, des, val){
             let newItem,ID;
             
@@ -53,7 +54,7 @@ const budgetController = (function(){
             }
             else if (type === 'inc')
             {
-                newItem = new Expense (ID, des,val)
+                newItem = new Income (ID, des,val)
             }
             //push data baru
             data.allItems[type].push(newItem)
@@ -72,7 +73,7 @@ const budgetController = (function(){
             //persentase
 
             if (data.totals.inc>0){
-                data.persentase =Math.round((data.totals.inc/data.totals.exp) * 100);
+                data.persentase =Math.round((data.totals.exp/data.totals.inc) * 100);
             }else{
                 data.persentase = -1
             }
@@ -108,6 +109,10 @@ const UIController = (function (){
             inputBtn : '.add__btn',
             incomeContainer: '.income__list',
             expensesContainer: '.expenses__list',
+            budgetLabel : '.budget__value',
+            incomeLabel:'.budget__income--value',
+            expensesLabel:'.budget__expenses--value',
+            persentaseLabel:'.budget__expenses--percentage',
 
             
         }
@@ -156,6 +161,17 @@ const UIController = (function (){
                 });
                 fieldsArr[0].focus();
             },
+            displayBudget: function (obj){
+                document.querySelector(DOMstring.budgetLabel).textContent =obj.budget;
+                document.querySelector(DOMstring.incomeLabel).textContent= obj.totalInc
+                document.querySelector(DOMstring.expensesLabel).textContent= obj.totalExp
+                // document.querySelector(DOMstring.persentaseLabel).textContent =obj.persentase;
+                if (obj.persentase ===Infinity||obj.persentase===-1){
+                    document.querySelector(DOMstring.persentaseLabel).textContent ='---'
+                }else{
+                    document.querySelector(DOMstring.persentaseLabel).textContent =obj.persentase;
+                }
+            },
         }
 })();
 
@@ -165,7 +181,7 @@ const UIController = (function (){
 const controller =  (function(budgetController,UIController){
 
     let setEvenlistener = function  (){
-        let DOM = UIController.getDOMstring()//panggil DOMstring global dari UIcontroller
+        let DOM = UIController.getDOMstring();//panggil DOMstring global dari UIcontroller
 
         document.querySelector(DOM.inputBtn).addEventListener('click',ctrlAddItem)
 
@@ -182,9 +198,9 @@ const controller =  (function(budgetController,UIController){
         // 1.kalkulasi budget
         budgetController.calculateBudget();
         //2.return budget
-        let budget = budgetController.getBudget()
+        let budget = budgetController.getBudget();
         //3.display badget ke UI
-        console.log(budget);
+        UIController.displayBudget(budget);
     }
     
 
@@ -192,7 +208,7 @@ const controller =  (function(budgetController,UIController){
     let ctrlAddItem = function (){
         //1. ambil input data
         let input = UIController.getinput();
-        console.log (input) 
+        console.log (input)
 
         if (input.description !== '' && !isNaN(input.value) && input.value>0){
             
