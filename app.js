@@ -8,6 +8,20 @@ const budgetController = (function(){
         this.percentage = -1;
     };
 
+    Expense.prototype.calcPercentage = function (totalIncome) {
+
+        if (totalIncome>0){
+            this.percentage = Math.round( ( this.value/totalIncome ) *100 );
+        }else{
+            this.percentage = -1;
+        }
+    }
+
+    Expense.prototype.getPercentage = function () {
+        return this.percentage;
+    }
+
+
     var Income = function(id, description, value) {
         this.id = id;
         this.description = description;
@@ -92,9 +106,25 @@ const budgetController = (function(){
                 data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
             } else {
                 data.percentage = -1;
-            }            
+            }
             
             // Expense = 100 and income 300, spent 33.333% = 100/300 = 0.3333 * 100
+        },
+        
+        calculatePercentages : function () {
+            
+            data.allItems.exp.forEach(function(cal){
+                 cal.calcPercentage(data.totals.inc)
+            })
+
+        },
+
+        getPercentages : function (){
+
+            let allPerc = data.allItems.exp.map(function(cal){
+                return cal.getPercentage()
+            })
+            return allPerc;
         },
 
         testing : function () {
@@ -163,6 +193,13 @@ const UIController = (function (){
 
 
             },
+
+            deleteListItem : function (selectorID){
+                el = document.getElementById(selectorID);
+
+                el.parentNode.removeChild(document.getElementById(selectorID))
+            },
+
             //membuat object DOMstring menjadi Global
             clearFields: function() {
                 var fields, fieldsArr;
@@ -200,7 +237,7 @@ const UIController = (function (){
 
 
 
-//global App controller
+//global App controller (kontrol smua event)
 const controller =  (function(budgetCtrl,UICtrl){
 
     let setupEventListeners = function  (){
@@ -229,6 +266,17 @@ const controller =  (function(budgetCtrl,UICtrl){
         // 3. Display the budget on the UI
         UICtrl.displayBudget(budget);
     };
+
+    let updatePercentages = function () {
+        //
+        budgetCtrl.calculatePercentages()
+
+        let percentages = budgetCtrl.getPercentages()
+
+        console.log (percentages)
+
+
+    }
     
 
 
@@ -252,7 +300,10 @@ const controller =  (function(budgetCtrl,UICtrl){
         //5. display budget
 
         //6. Update dan kalkulasi budget
-        updateBudget()
+            updateBudget()
+        //7. Update persentase
+            updatePercentages();
+            
         }
         return console.log(input)
     }
@@ -271,6 +322,10 @@ const controller =  (function(budgetCtrl,UICtrl){
             ID = parseInt(splitID[1])
 
             budgetController.deleteItem(type, ID)
+
+            UICtrl.deleteListItem(itemID)
+
+            updatePercentages();
 
         }
     }
