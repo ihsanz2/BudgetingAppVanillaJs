@@ -160,9 +160,10 @@ const UIController = (function (){
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
         container : '.container',
-
-            
+        expensesPercLabel : '.item__percentage',
+        dateLabel : '.budget__title--month',
         }
+
 
         return {
             getInput: function() {
@@ -229,6 +230,40 @@ const UIController = (function (){
                 }
                 
             },
+
+            displayPercentages : function (percentages) {
+                
+                let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
+
+                let nodeListForEach = function (list, callback){
+                    for (i =0; i<list.length; i++){
+                        callback(list[i], i)
+                    }
+                }
+                              
+                
+                nodeListForEach(fields, function(current,index){
+
+                    if (percentages[index]>0){
+                        current.textContent = percentages[index] + '%';
+                    } else {
+                        current.textContent = '--'
+                    }
+                })
+            },
+
+            displayMonth : function () {
+                let now = new Date();
+                let months = ['January','February','March','April','May','June','July','Agust','September','October','November','December']
+                let month = now.getMonth()
+                let year = now.getFullYear();
+                document.querySelector(DOMstrings.dateLabel).textContent = months[month] +' '+year;
+
+
+            },
+
+            
+             
             getDOMstrings: function() {
                 return DOMstrings;
             },
@@ -273,7 +308,7 @@ const controller =  (function(budgetCtrl,UICtrl){
 
         let percentages = budgetCtrl.getPercentages()
 
-        console.log (percentages)
+        UICtrl.displayPercentages(percentages )
 
 
     }
@@ -324,6 +359,9 @@ const controller =  (function(budgetCtrl,UICtrl){
             budgetController.deleteItem(type, ID)
 
             UICtrl.deleteListItem(itemID)
+            
+            updateBudget()
+
 
             updatePercentages();
 
@@ -333,6 +371,7 @@ const controller =  (function(budgetCtrl,UICtrl){
     return {
         init : function (){
             console.log (`server jalan`);
+            UIController.displayMonth();
             UICtrl.displayBudget(
                 {
                     budget:0,
